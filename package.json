@@ -1,21 +1,28 @@
 {
-    "name": "com.kwanjoong.twentyfiveslicer",
-    "version": "0.1.0",
-    "displayName": "TwentyFiveSlicer",
-    "description": "Slice a sprite to not 9, but 25 slices.",
-    "unity": "2022.3",
-    "keywords": [
-        "nine patch",
-        "9 slice",
-        "sprite editor",
-        "25 slice",
-        "twenty five",
-        "twenty five slicer",
-        "25",
-        "25 slicer"
-      ],
-      "author": {
-        "name": "Kwanjoong Lee",
-        "url": "https://github.com/kwan3854"
-      }
-  }
+  "name": "com.kwanjoong.twentyfiveslicer",
+  "version": "1.0.0",
+  "displayName": "Twenty Five Slicer",
+  "description": "A Unity package that slices a sprite into 25 slices instead of the usual 9, allowing for more flexible UI designs.",
+  "unity": "2022.3",
+  "keywords": [
+    "nine-patch",
+    "9-slice",
+    "sprite editor",
+    "25-slice",
+    "twenty-five",
+    "slicer",
+    "UI",
+    "Unity",
+    "graphics"
+  ],
+  "author": {
+    "name": "Kwanjoong Lee",
+    "email": "your-email@example.com",
+    "url": "https://github.com/kwan3854/TwentyFiveSlicer"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kwan3854/TwentyFiveSlicer.git"
+  },
+  "license": "MIT"
+}
