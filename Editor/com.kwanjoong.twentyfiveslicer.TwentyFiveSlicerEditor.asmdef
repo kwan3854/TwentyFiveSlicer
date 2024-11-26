@@ -1,5 +1,5 @@
 {
-    "name": "com.kwanjoong.twentyfiveslicer.Editor",
+    "name": "com.kwanjoong.twentyfiveslicer.TwentyFiveSlicerEditor",
     "rootNamespace": "",
     "references": [
         "GUID:ccdc63142fcbf4ba8867b54c210d0ed5"

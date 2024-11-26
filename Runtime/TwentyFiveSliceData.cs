@@ -1,6 +1,9 @@
-[System.Serializable]
-public class TwentyFiveSliceData
+namespace TwentyFiveSlicer.Runtime
 {
-    public float[] verticalBorders = new float[4]; // X축 경계값 (%) - 4개의 분할선
-    public float[] horizontalBorders = new float[4]; // Y축 경계값 (%) - 4개의 분할선
+    [System.Serializable]
+    public class TwentyFiveSliceData
+    {
+        public float[] verticalBorders = new float[4]; // X축 경계값 (%) - 4개의 분할선
+        public float[] horizontalBorders = new float[4]; // Y축 경계값 (%) - 4개의 분할선
+    }
 }

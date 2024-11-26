@@ -1,7 +1,8 @@
+using TwentyFiveSlicer.Runtime;
 using UnityEditor;
 using UnityEngine;
 
-namespace Editor
+namespace TwentyFiveSlicer.EditorTools
 {
     public class TwentyFiveSliceEditor : EditorWindow
     {
