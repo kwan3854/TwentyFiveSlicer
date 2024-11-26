@@ -24,5 +24,12 @@
     "type": "git",
     "url": "https://github.com/kwan3854/TwentyFiveSlicer.git"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "samples": [
+    {
+      "displayName": "Twenty Five Slice Sample",
+      "description": "Contains sample assets and scenes to demonstrate how to use the Twenty Five Slicer package.",
+      "path": "Samples~/25SliceSample"
+    }
+  ]
 }
