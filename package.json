@@ -1,0 +1,21 @@
+{
+    "name": "com.kwanjoong.twentyfiveslicer",
+    "version": "0.1.0",
+    "displayName": "TwentyFiveSlicer",
+    "description": "Slice a sprite to not 9, but 25 slices.",
+    "unity": "2022.3",
+    "keywords": [
+        "nine patch",
+        "9 slice",
+        "sprite editor",
+        "25 slice",
+        "twenty five",
+        "twenty five slicer",
+        "25",
+        "25 slicer"
+      ],
+      "author": {
+        "name": "Kwanjoong Lee",
+        "url": "https://github.com/kwan3854"
+      }
+  }

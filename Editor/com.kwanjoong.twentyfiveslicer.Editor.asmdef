@@ -1,0 +1,16 @@
+{
+    "name": "com.kwanjoong.twentyfiveslicer.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ccdc63142fcbf4ba8867b54c210d0ed5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
