@@ -44,9 +44,13 @@ namespace TwentyFiveSlicer.EditorTools
 
             if (_spriteTexture != null)
             {
+                // Adjust sprite preview size to remove top and bottom padding
+                float aspectRatio = (float)_spriteTexture.width / _spriteTexture.height;
+                float previewHeight = 400;
+                float previewWidth = previewHeight * aspectRatio;
+
                 // Sprite preview with transparency support
-                Rect spriteRect = GUILayoutUtility.GetRect(400, 400, GUILayout.ExpandWidth(false),
-                    GUILayout.ExpandHeight(false));
+                Rect spriteRect = GUILayoutUtility.GetRect(previewWidth, previewHeight, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
                 GUI.DrawTexture(spriteRect, _spriteTexture, ScaleMode.ScaleToFit, true);
 
                 if (_sliceData != null)
@@ -56,11 +60,8 @@ namespace TwentyFiveSlicer.EditorTools
 
                     for (int i = 0; i < 4; i++)
                     {
-                        _verticalBorders[i] = EditorGUILayout.Slider($"Vertical Border {i + 1}", _verticalBorders[i],
-                            i > 0 ? _verticalBorders[i - 1] : 0, i < 3 ? _verticalBorders[i + 1] : 100);
-                        _horizontalBorders[i] = EditorGUILayout.Slider($"Horizontal Border {i + 1}",
-                            _horizontalBorders[i], i > 0 ? _horizontalBorders[i - 1] : 0,
-                            i < 3 ? _horizontalBorders[i + 1] : 100);
+                        _verticalBorders[i] = EditorGUILayout.Slider($"Vertical Border {i + 1}", _verticalBorders[i], i > 0 ? _verticalBorders[i - 1] : 0, i < 3 ? _verticalBorders[i + 1] : 100);
+                        _horizontalBorders[i] = EditorGUILayout.Slider($"Horizontal Border {i + 1}", _horizontalBorders[i], i > 0 ? _horizontalBorders[i - 1] : 0, i < 3 ? _horizontalBorders[i + 1] : 100);
                     }
 
                     EditorGUILayout.Space();
