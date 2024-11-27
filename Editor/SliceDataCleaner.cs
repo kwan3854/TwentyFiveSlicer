@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using TwentyFiveSlicer.Runtime;
 
 namespace TwentyFiveSlicer.EditorTools
 {
@@ -50,21 +51,37 @@ namespace TwentyFiveSlicer.EditorTools
         {
             _orphanedFiles.Clear();
             string directoryPath = $"{Application.dataPath}/Resources/TwentyFiveSliceData";
+
             if (!Directory.Exists(directoryPath))
             {
                 Debug.Log("No slice data directory found.");
                 return;
             }
 
-            string[] sliceDataFiles = Directory.GetFiles(directoryPath, "*.slicedata");
+            string[] sliceDataFiles = Directory.GetFiles(directoryPath, "*.json");
 
             foreach (string filePath in sliceDataFiles)
             {
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
-                string spritePath = AssetDatabase.GUIDToAssetPath(fileName);
-                Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+                bool fileIsOrphaned = true;
 
-                if (sprite == null)
+                foreach (var guid in AssetDatabase.FindAssets("t:Sprite"))
+                {
+                    string path = AssetDatabase.GUIDToAssetPath(guid);
+                    Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
+
+                    if (sprite != null)
+                    {
+                        string spriteHash = TfsHashGenerator.GenerateUniqueSpriteHash(sprite);
+                        if (spriteHash == fileName)
+                        {
+                            fileIsOrphaned = false;
+                            break;
+                        }
+                    }
+                }
+
+                if (fileIsOrphaned)
                 {
                     _orphanedFiles.Add(filePath);
                 }

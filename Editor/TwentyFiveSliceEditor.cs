@@ -50,7 +50,8 @@ namespace TwentyFiveSlicer.EditorTools
                 float previewWidth = previewHeight * aspectRatio;
 
                 // Sprite preview with transparency support
-                Rect spriteRect = GUILayoutUtility.GetRect(previewWidth, previewHeight, GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                Rect spriteRect = GUILayoutUtility.GetRect(previewWidth, previewHeight, GUILayout.ExpandWidth(false),
+                    GUILayout.ExpandHeight(false));
                 GUI.DrawTexture(spriteRect, _spriteTexture, ScaleMode.ScaleToFit, true);
 
                 if (_sliceData != null)
@@ -60,8 +61,11 @@ namespace TwentyFiveSlicer.EditorTools
 
                     for (int i = 0; i < 4; i++)
                     {
-                        _verticalBorders[i] = EditorGUILayout.Slider($"Vertical Border {i + 1}", _verticalBorders[i], i > 0 ? _verticalBorders[i - 1] : 0, i < 3 ? _verticalBorders[i + 1] : 100);
-                        _horizontalBorders[i] = EditorGUILayout.Slider($"Horizontal Border {i + 1}", _horizontalBorders[i], i > 0 ? _horizontalBorders[i - 1] : 0, i < 3 ? _horizontalBorders[i + 1] : 100);
+                        _verticalBorders[i] = EditorGUILayout.Slider($"Vertical Border {i + 1}", _verticalBorders[i],
+                            i > 0 ? _verticalBorders[i - 1] : 0, i < 3 ? _verticalBorders[i + 1] : 100);
+                        _horizontalBorders[i] = EditorGUILayout.Slider($"Horizontal Border {i + 1}",
+                            _horizontalBorders[i], i > 0 ? _horizontalBorders[i - 1] : 0,
+                            i < 3 ? _horizontalBorders[i + 1] : 100);
                     }
 
                     EditorGUILayout.Space();
@@ -112,9 +116,8 @@ namespace TwentyFiveSlicer.EditorTools
         {
             if (_targetSprite == null) return;
 
-            string path = AssetDatabase.GetAssetPath(_targetSprite);
-            string guid = AssetDatabase.AssetPathToGUID(path);
-            string filePath = $"{Application.dataPath}/Resources/TwentyFiveSliceData/{guid}.slicedata";
+            var hash = TfsHashGenerator.GenerateUniqueSpriteHash(_targetSprite);
+            string filePath = $"{Application.dataPath}/Resources/TwentyFiveSliceData/{hash}.json";
 
             if (System.IO.File.Exists(filePath))
             {
@@ -128,16 +131,21 @@ namespace TwentyFiveSlicer.EditorTools
             }
 
             _bordersLoaded = true;
+
+            Debug.Log($"Path: {filePath}, Name: {hash}.json");
         }
 
         private void SaveBorders()
         {
             if (_targetSprite == null) return;
 
-            string path = AssetDatabase.GetAssetPath(_targetSprite);
-            string guid = AssetDatabase.AssetPathToGUID(path);
+            EnsureTextureIsReadable(_targetSprite.texture);
+
+            var hash = TfsHashGenerator.GenerateUniqueSpriteHash(_targetSprite);
             string directoryPath = $"{Application.dataPath}/Resources/TwentyFiveSliceData";
-            string filePath = $"{directoryPath}/{guid}.slicedata";
+            string filePath = $"{directoryPath}/{hash}.json";
+
+            Debug.Log($"Saving slice data to: {filePath}");
 
             if (!System.IO.Directory.Exists(directoryPath))
             {
@@ -153,7 +161,31 @@ namespace TwentyFiveSlicer.EditorTools
             string data = JsonUtility.ToJson(_sliceData);
             System.IO.File.WriteAllText(filePath, data);
 
+            // Unity 에디터에 변경 사항 알리기
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+#endif
+
+            Debug.Log($"Path: {filePath}, Name: {hash}.json");
             Debug.Log("25-Slice data saved.");
+        }
+
+        /// <summary>
+        /// Ensures the texture is readable by modifying the texture import settings if needed.
+        /// </summary>
+        private void EnsureTextureIsReadable(Texture2D texture)
+        {
+#if UNITY_EDITOR
+            string texturePath = UnityEditor.AssetDatabase.GetAssetPath(texture);
+            var importer = UnityEditor.AssetImporter.GetAtPath(texturePath) as UnityEditor.TextureImporter;
+
+            if (importer != null && !importer.isReadable)
+            {
+                importer.isReadable = true;
+                importer.SaveAndReimport();
+                Debug.Log($"Texture '{texture.name}' is now readable.");
+            }
+#endif
         }
     }
 }
