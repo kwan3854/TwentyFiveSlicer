@@ -113,11 +113,13 @@ namespace TwentyFiveSlicer.EditorTools
             if (_targetSprite == null) return;
 
             string path = AssetDatabase.GetAssetPath(_targetSprite);
-            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            string filePath = $"{Application.dataPath}/Resources/TwentyFiveSliceData/{guid}.slicedata";
 
-            if (importer != null && !string.IsNullOrEmpty(importer.userData))
+            if (System.IO.File.Exists(filePath))
             {
-                _sliceData = JsonUtility.FromJson<TwentyFiveSliceData>(importer.userData);
+                string json = System.IO.File.ReadAllText(filePath);
+                _sliceData = JsonUtility.FromJson<TwentyFiveSliceData>(json);
                 if (_sliceData != null)
                 {
                     _verticalBorders = _sliceData.verticalBorders;
@@ -133,9 +135,14 @@ namespace TwentyFiveSlicer.EditorTools
             if (_targetSprite == null) return;
 
             string path = AssetDatabase.GetAssetPath(_targetSprite);
-            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            string directoryPath = $"{Application.dataPath}/Resources/TwentyFiveSliceData";
+            string filePath = $"{directoryPath}/{guid}.slicedata";
 
-            if (importer == null) return;
+            if (!System.IO.Directory.Exists(directoryPath))
+            {
+                System.IO.Directory.CreateDirectory(directoryPath);
+            }
 
             _sliceData = new TwentyFiveSliceData
             {
@@ -144,10 +151,8 @@ namespace TwentyFiveSlicer.EditorTools
             };
 
             string data = JsonUtility.ToJson(_sliceData);
-            importer.userData = data;
+            System.IO.File.WriteAllText(filePath, data);
 
-            AssetDatabase.ImportAsset(path);
-            EditorUtility.SetDirty(importer);
             Debug.Log("25-Slice data saved.");
         }
     }

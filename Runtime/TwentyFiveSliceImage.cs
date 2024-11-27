@@ -230,21 +230,36 @@ namespace TwentyFiveSlicer.Runtime
 
         private TwentyFiveSliceData LoadTwentyFiveSliceData(Sprite targetSprite)
         {
-#if UNITY_EDITOR
             string path = AssetDatabase.GetAssetPath(targetSprite);
-            TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+            string guid = AssetDatabase.AssetPathToGUID(path);
+            string filePath = $"{Application.dataPath}/Resources/TwentyFiveSliceData/{guid}.slicedata";
 
-            if (importer != null && !string.IsNullOrEmpty(importer.userData))
+        #if UNITY_EDITOR
+            if (System.IO.File.Exists(filePath))
             {
-                return JsonUtility.FromJson<TwentyFiveSliceData>(importer.userData);
+                string json = System.IO.File.ReadAllText(filePath);
+                return JsonUtility.FromJson<TwentyFiveSliceData>(json);
             }
-#endif
+        #else
+            TextAsset jsonAsset = Resources.Load<TextAsset>($"TwentyFiveSliceData/{guid}");
+            if (jsonAsset != null)
+            {
+                return JsonUtility.FromJson<TwentyFiveSliceData>(jsonAsset.text);
+            }
+        #endif
 
             return new TwentyFiveSliceData
             {
                 verticalBorders = new float[] { 20f, 40f, 60f, 80f },
                 horizontalBorders = new float[] { 20f, 40f, 60f, 80f }
             };
+        }
+        
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            Resources.UnloadUnusedAssets();
         }
     }
 }
