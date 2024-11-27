@@ -54,3 +54,7 @@ You can download pre-configured samples directly from the **Samples** tab in the
 - Easy-to-use editor with visual feedback for precise slicing.
 
 For more information or contributions, visit the [repository](https://github.com/kwan3854/TwentyFiveSlicer).
+
+## Delete unused data
+
+**Tools -> Twenty Five Slicer Tools -> Slice Data Cleaner**
