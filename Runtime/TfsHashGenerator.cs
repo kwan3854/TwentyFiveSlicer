@@ -18,17 +18,13 @@ namespace TwentyFiveSlicer.Runtime
             {
                 sb.Append(pixel.r).Append(pixel.g).Append(pixel.b).Append(pixel.a);
             }
-
-            using (MD5 md5 = MD5.Create())
+            byte[] hashBytes = MD5.HashData(Encoding.UTF8.GetBytes(sb.ToString()));
+            StringBuilder hashString = new StringBuilder();
+            foreach (byte b in hashBytes)
             {
-                byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(sb.ToString()));
-                StringBuilder hashString = new StringBuilder();
-                foreach (byte b in hashBytes)
-                {
-                    hashString.Append(b.ToString("X2"));
-                }
-                return $"{textureName}_{rect.width}_{rect.height}_{hashString}";
+                hashString.Append(b.ToString("X2"));
             }
+            return $"{textureName}_{rect.width}_{rect.height}_{hashString}";
         }
     }
 }

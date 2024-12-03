@@ -99,12 +99,12 @@ namespace TwentyFiveSlicer.EditorTools
             for (int i = 0; i < 4; i++)
             {
                 // Vertical borders
-                float x = spriteRect.x + spriteRect.width * _verticalBorders[i] / 100f;
+                float x = spriteRect.x + (spriteRect.width * _verticalBorders[i] / 100f);
                 Handles.DrawLine(new Vector3(x, spriteRect.y), new Vector3(x, spriteRect.y + spriteRect.height));
                 Handles.Label(new Vector3(x - 10, spriteRect.y - 20), $"V{i + 1}");
 
                 // Horizontal borders
-                float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
+                float y = spriteRect.y + (spriteRect.height * _horizontalBorders[i] / 100f);
                 Handles.DrawLine(new Vector3(spriteRect.x, y), new Vector3(spriteRect.x + spriteRect.width, y));
                 Handles.Label(new Vector3(spriteRect.x - 30, y - 10), $"H{i + 1}");
             }
