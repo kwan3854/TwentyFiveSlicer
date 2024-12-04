@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using Twentyfiveslicer.Runtime.SerializedDictionary;
 
 namespace TwentyFiveSlicer.Runtime
 {
@@ -16,6 +18,21 @@ namespace TwentyFiveSlicer.Runtime
         public void AddSliceData(Sprite sprite, TwentyFiveSliceData data)
         {
             sliceDataMap.Add(sprite, data);
+        }
+
+        public void RemoveSliceData(Sprite sprite)
+        {
+            sliceDataMap.Remove(sprite);
+        }
+
+        public IEnumerable<Sprite> GetAllSprites()
+        {
+            return sliceDataMap.Keys;
+        }
+        
+        public IEnumerable<KeyValuePair<Sprite, TwentyFiveSliceData>> GetAllEntries()
+        {
+            return sliceDataMap.GetAllEntries();
         }
     }
 }

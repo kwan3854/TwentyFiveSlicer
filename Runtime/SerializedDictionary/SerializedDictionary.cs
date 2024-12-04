@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using TwentyFiveSlicer.Runtime;
 using UnityEngine;
 
-namespace TwentyFiveSlicer.Runtime
+namespace Twentyfiveslicer.Runtime.SerializedDictionary
 {
     [System.Serializable]
     public class SerializedDictionary<TKey, TValue> : ISerializationCallbackReceiver
@@ -30,7 +31,9 @@ namespace TwentyFiveSlicer.Runtime
         public void Add(TKey key, TValue value) => _dictionary[key] = value;
         public bool TryGetValue(TKey key, out TValue value) => _dictionary.TryGetValue(key, out value);
         public bool ContainsKey(TKey key) => _dictionary.ContainsKey(key);
+        public void Remove(TKey key) => _dictionary.Remove(key);
         public void Clear() => _dictionary.Clear();
+        public IEnumerable<KeyValuePair<TKey, TValue>> GetAllEntries() => _dictionary;
         public Dictionary<TKey, TValue>.KeyCollection Keys => _dictionary.Keys;
         public Dictionary<TKey, TValue>.ValueCollection Values => _dictionary.Values;
     }

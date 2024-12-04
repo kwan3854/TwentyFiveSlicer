@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -52,6 +54,35 @@ namespace TwentyFiveSlicer.Runtime
                 return;
             }
             _sliceDataMap.AddSliceData(targetSprite, sliceData);
+            UnityEditor.EditorUtility.SetDirty(_sliceDataMap);
+            UnityEditor.AssetDatabase.SaveAssets();
+        }
+        
+        public bool IsSliceDataMapExist()
+        {
+            return _sliceDataMap != null;
+        }
+        
+        public IEnumerable<KeyValuePair<Sprite, TwentyFiveSliceData>> GetAllEntries()
+        {
+            if (_sliceDataMap == null)
+            {
+                Debug.LogError("SliceDataMap is not initialized.");
+                return Enumerable.Empty<KeyValuePair<Sprite, TwentyFiveSliceData>>();
+            }
+
+            return _sliceDataMap.GetAllEntries();
+        }
+
+        public void RemoveSliceData(Sprite sprite)
+        {
+            if (_sliceDataMap == null)
+            {
+                Debug.LogError("SliceDataMap is not initialized.");
+                return;
+            }
+
+            _sliceDataMap.RemoveSliceData(sprite);
             UnityEditor.EditorUtility.SetDirty(_sliceDataMap);
             UnityEditor.AssetDatabase.SaveAssets();
         }
