@@ -28,9 +28,6 @@ namespace TwentyFiveSlicer.Runtime
         }
 
         private bool _debuggingView = false;
-        private string _cachedHash = null;
-        private Sprite _cachedSprite = null;
-        private TwentyFiveSliceData _cachedSliceData = null;
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -40,9 +37,8 @@ namespace TwentyFiveSlicer.Runtime
                 base.OnPopulateMesh(vh);
                 return;
             }
-
-            var sliceData = GetSliceDataWithCache(overrideSprite);
-            if (sliceData == null)
+            
+            if (!SliceDataManager.Instance.TryGetSliceData(overrideSprite, out var sliceData))
             {
                 base.OnPopulateMesh(vh);
                 return;
@@ -52,60 +48,100 @@ namespace TwentyFiveSlicer.Runtime
             Vector4 outer = UnityEngine.Sprites.DataUtility.GetOuterUV(overrideSprite);
             Rect spriteRect = overrideSprite.rect;
 
-            float[] xBordersPercent = { 0f, sliceData.verticalBorders[0], sliceData.verticalBorders[1], sliceData.verticalBorders[2], sliceData.verticalBorders[3], 100f };
-            float[] yBordersPercent = { 0f, 100f - sliceData.horizontalBorders[3], 100f - sliceData.horizontalBorders[2], 100f - sliceData.horizontalBorders[1], 100f - sliceData.horizontalBorders[0], 100f };
+            float[] xBordersPercent = GetXBordersPercent(sliceData);
+            float[] yBordersPercent = GetYBordersPercent(sliceData);
 
-            float[] uvXBorders = { outer.x, Mathf.Lerp(outer.x, outer.z, xBordersPercent[1] / 100f), Mathf.Lerp(outer.x, outer.z, xBordersPercent[2] / 100f), Mathf.Lerp(outer.x, outer.z, xBordersPercent[3] / 100f), Mathf.Lerp(outer.x, outer.z, xBordersPercent[4] / 100f), outer.z };
-            float[] uvYBorders = { outer.y, Mathf.Lerp(outer.y, outer.w, yBordersPercent[1] / 100f), Mathf.Lerp(outer.y, outer.w, yBordersPercent[2] / 100f), Mathf.Lerp(outer.y, outer.w, yBordersPercent[3] / 100f), Mathf.Lerp(outer.y, outer.w, yBordersPercent[4] / 100f), outer.w };
+            float[] uvXBorders = GetUVBorders(outer.x, outer.z, xBordersPercent);
+            float[] uvYBorders = GetUVBorders(outer.y, outer.w, yBordersPercent);
 
-            float[] originalWidths = { (xBordersPercent[1] - xBordersPercent[0]) * spriteRect.width / 100f, (xBordersPercent[2] - xBordersPercent[1]) * spriteRect.width / 100f, (xBordersPercent[3] - xBordersPercent[2]) * spriteRect.width / 100f, (xBordersPercent[4] - xBordersPercent[3]) * spriteRect.width / 100f, (xBordersPercent[5] - xBordersPercent[4]) * spriteRect.width / 100f };
-            float[] originalHeights = { (yBordersPercent[1] - yBordersPercent[0]) * spriteRect.height / 100f, (yBordersPercent[2] - yBordersPercent[1]) * spriteRect.height / 100f, (yBordersPercent[3] - yBordersPercent[2]) * spriteRect.height / 100f, (yBordersPercent[4] - yBordersPercent[3]) * spriteRect.height / 100f, (yBordersPercent[5] - yBordersPercent[4]) * spriteRect.height / 100f };
+            float[] originalWidths = GetOriginalSizes(xBordersPercent, spriteRect.width);
+            float[] originalHeights = GetOriginalSizes(yBordersPercent, spriteRect.height);
 
             bool[] fixedColumns = { true, false, true, false, true };
             bool[] fixedRows = { true, false, true, false, true };
 
-            float totalFixedWidth = 0f, totalFixedHeight = 0f;
+            float[] widths = GetAdjustedSizes(rect.width, originalWidths, fixedColumns);
+            float[] heights = GetAdjustedSizes(rect.height, originalHeights, fixedRows);
+
+            float[] xPositions = GetPositions(rect.xMin, widths);
+            float[] yPositions = GetPositions(rect.yMin, heights);
+
+            SliceRect[,] slices = GetSlices(xPositions, yPositions, uvXBorders, uvYBorders, widths, heights);
+
+            DrawSlices(vh, slices);
+        }
+
+        private float[] GetXBordersPercent(TwentyFiveSliceData sliceData)
+        {
+            return new float[]
+            {
+                0f, sliceData.verticalBorders[0], sliceData.verticalBorders[1], sliceData.verticalBorders[2],
+                sliceData.verticalBorders[3], 100f
+            };
+        }
+
+        private float[] GetYBordersPercent(TwentyFiveSliceData sliceData)
+        {
+            return new float[]
+            {
+                0f, 100f - sliceData.horizontalBorders[3], 100f - sliceData.horizontalBorders[2],
+                100f - sliceData.horizontalBorders[1], 100f - sliceData.horizontalBorders[0], 100f
+            };
+        }
+
+        private float[] GetUVBorders(float min, float max, float[] bordersPercent)
+        {
+            return new float[]
+            {
+                min, Mathf.Lerp(min, max, bordersPercent[1] / 100f), Mathf.Lerp(min, max, bordersPercent[2] / 100f),
+                Mathf.Lerp(min, max, bordersPercent[3] / 100f), Mathf.Lerp(min, max, bordersPercent[4] / 100f), max
+            };
+        }
+
+        private float[] GetOriginalSizes(float[] bordersPercent, float totalSize)
+        {
+            return new float[]
+            {
+                (bordersPercent[1] - bordersPercent[0]) * totalSize / 100f,
+                (bordersPercent[2] - bordersPercent[1]) * totalSize / 100f,
+                (bordersPercent[3] - bordersPercent[2]) * totalSize / 100f,
+                (bordersPercent[4] - bordersPercent[3]) * totalSize / 100f,
+                (bordersPercent[5] - bordersPercent[4]) * totalSize / 100f
+            };
+        }
+
+        private float[] GetAdjustedSizes(float totalSize, float[] originalSizes, bool[] fixedSizes)
+        {
+            float totalFixedSize = 0f;
+            float stretchableSizeRatio = 0f;
             for (int i = 0; i < 5; i++)
             {
-                if (fixedColumns[i]) totalFixedWidth += originalWidths[i];
-                if (fixedRows[i]) totalFixedHeight += originalHeights[i];
+                if (fixedSizes[i]) totalFixedSize += originalSizes[i];
+                else stretchableSizeRatio += originalSizes[i];
             }
 
-            float totalStretchableWidth = Mathf.Max(0, rect.width - totalFixedWidth);
-            float totalStretchableHeight = Mathf.Max(0, rect.height - totalFixedHeight);
-
-            float[] widths = new float[5];
-            float stretchableWidthRatio = 0f;
+            float totalStretchableSize = Mathf.Max(0, totalSize - totalFixedSize);
+            float[] adjustedSizes = new float[5];
             for (int i = 0; i < 5; i++)
             {
-                if (fixedColumns[i]) widths[i] = originalWidths[i];
-                else stretchableWidthRatio += originalWidths[i];
-            }
-            for (int i = 0; i < 5; i++)
-            {
-                if (!fixedColumns[i]) widths[i] = totalStretchableWidth * (originalWidths[i] / stretchableWidthRatio);
+                if (fixedSizes[i]) adjustedSizes[i] = originalSizes[i];
+                else adjustedSizes[i] = totalStretchableSize * (originalSizes[i] / stretchableSizeRatio);
             }
 
-            float[] heights = new float[5];
-            float stretchableHeightRatio = 0f;
-            for (int i = 0; i < 5; i++)
-            {
-                if (fixedRows[i]) heights[i] = originalHeights[i];
-                else stretchableHeightRatio += originalHeights[i];
-            }
-            for (int i = 0; i < 5; i++)
-            {
-                if (!fixedRows[i]) heights[i] = totalStretchableHeight * (originalHeights[i] / stretchableHeightRatio);
-            }
+            return adjustedSizes;
+        }
 
-            float[] xPositions = new float[6];
-            xPositions[0] = rect.xMin;
-            for (int i = 1; i <= 5; i++) xPositions[i] = xPositions[i - 1] + widths[i - 1];
+        private float[] GetPositions(float start, float[] sizes)
+        {
+            float[] positions = new float[6];
+            positions[0] = start;
+            for (int i = 1; i <= 5; i++) positions[i] = positions[i - 1] + sizes[i - 1];
+            return positions;
+        }
 
-            float[] yPositions = new float[6];
-            yPositions[0] = rect.yMin;
-            for (int i = 1; i <= 5; i++) yPositions[i] = yPositions[i - 1] + heights[i - 1];
-
+        private SliceRect[,] GetSlices(float[] xPositions, float[] yPositions, float[] uvXBorders, float[] uvYBorders,
+            float[] widths, float[] heights)
+        {
             SliceRect[,] slices = new SliceRect[5, 5];
             for (int y = 0; y < 5; y++)
             {
@@ -121,6 +157,11 @@ namespace TwentyFiveSlicer.Runtime
                 }
             }
 
+            return slices;
+        }
+
+        private void DrawSlices(VertexHelper vh, SliceRect[,] slices)
+        {
             for (int y = 0; y < 5; y++)
             {
                 for (int x = 0; x < 5; x++)
@@ -135,16 +176,8 @@ namespace TwentyFiveSlicer.Runtime
             }
         }
 
-        private TwentyFiveSliceData GetSliceDataWithCache(Sprite sprite)
-        {
-            if (sprite == _cachedSprite) return _cachedSliceData;
-            _cachedSprite = sprite;
-            _cachedHash = TfsHashGenerator.GenerateUniqueSpriteHash(sprite);
-            _cachedSliceData = LoadTwentyFiveSliceData(sprite);
-            return _cachedSliceData;
-        }
-
-        private void AddQuad(VertexHelper vh, Vector2 bottomLeft, Vector2 topRight, Vector2 uvBottomLeft, Vector2 uvTopRight, Color color)
+        private void AddQuad(VertexHelper vh, Vector2 bottomLeft, Vector2 topRight, Vector2 uvBottomLeft,
+            Vector2 uvTopRight, Color color)
         {
             int vertexIndex = vh.currentVertCount;
             vh.AddVert(new Vector3(bottomLeft.x, bottomLeft.y), color, new Vector2(uvBottomLeft.x, uvBottomLeft.y));
@@ -153,19 +186,6 @@ namespace TwentyFiveSlicer.Runtime
             vh.AddVert(new Vector3(topRight.x, bottomLeft.y), color, new Vector2(uvTopRight.x, uvBottomLeft.y));
             vh.AddTriangle(vertexIndex, vertexIndex + 1, vertexIndex + 2);
             vh.AddTriangle(vertexIndex, vertexIndex + 2, vertexIndex + 3);
-        }
-
-        private TwentyFiveSliceData LoadTwentyFiveSliceData(Sprite targetSprite)
-        {
-            if (string.IsNullOrEmpty(_cachedHash)) return null;
-            TextAsset jsonAsset = Resources.Load<TextAsset>($"TwentyFiveSliceData/{_cachedHash}");
-            if (jsonAsset != null) return JsonUtility.FromJson<TwentyFiveSliceData>(jsonAsset.text);
-            Debug.LogWarning($"Slice data not found for sprite {targetSprite.name}. Hash: {_cachedHash}");
-            return new TwentyFiveSliceData
-            {
-                verticalBorders = new float[] { 20f, 40f, 60f, 80f },
-                horizontalBorders = new float[] { 20f, 40f, 60f, 80f }
-            };
         }
     }
 }
