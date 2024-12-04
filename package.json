@@ -1,6 +1,6 @@
 {
   "name": "com.kwanjoong.twentyfiveslicer",
-  "version": "1.1.0",
+  "version": "0.1.0-alpha",
   "displayName": "Twenty Five Slicer",
   "description": "A Unity package that slices a sprite into 25 slices instead of the usual 9, allowing for more flexible UI designs.",
   "unity": "2022.3",
