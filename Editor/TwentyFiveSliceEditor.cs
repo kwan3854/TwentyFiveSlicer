@@ -65,11 +65,20 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
                 _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
                 // 내부 캔버스
-                _canvasRect = GUILayoutUtility.GetRect(CanvasSize * _zoom, CanvasSize * _zoom,
-                    GUILayout.ExpandWidth(false), GUILayout.ExpandHeight(false));
+                // 캔버스를 중앙에 정렬
+                float windowWidth = position.width;
+                float windowHeight = position.height;
+                float canvasWidth = CanvasSize * _zoom;
+                float canvasHeight = CanvasSize * _zoom;
+
+                float offsetX = (windowWidth - canvasWidth) / 2f;
+                float offsetY = (windowHeight - canvasHeight) / 2f;
+
+                _canvasRect = new Rect(offsetX, offsetY, canvasWidth, canvasHeight);
 
                 // 모눈 배경
                 DrawCanvasBackground(_canvasRect);
+
 
                 // 스프라이트와 경계
                 DrawSpritePreview(_canvasRect);
