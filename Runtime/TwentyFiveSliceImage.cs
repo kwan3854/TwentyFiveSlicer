@@ -200,7 +200,7 @@ namespace TwentyFiveSlicer.Runtime
                 for (int x = 0; x < 5; x++)
                 {
                     var slice = slices[x, y];
-                    Color sliceColor = DebuggingView ? new Color((float)x / 4, (float)y / 4, 0.5f) : color;
+                    Color sliceColor = DebuggingView ? new Color((float)x / 4, (float)y / 4, (float)(x + y) / 8) : color;
                     if (slice.Size.x > 0 && slice.Size.y > 0)
                     {
                         AddQuad(vh, slice.Position, slice.Position + slice.Size, slice.UVMin, slice.UVMax, sliceColor);
