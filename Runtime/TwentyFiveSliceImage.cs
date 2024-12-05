@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -28,6 +29,8 @@ namespace TwentyFiveSlicer.Runtime
         }
 
         private bool _debuggingView = false;
+        private readonly bool[] _fixedColumns = { true, false, true, false, true };
+        private readonly bool[] _fixedRows = { true, false, true, false, true };
 
         protected override void OnPopulateMesh(VertexHelper vh)
         {
@@ -37,7 +40,7 @@ namespace TwentyFiveSlicer.Runtime
                 base.OnPopulateMesh(vh);
                 return;
             }
-            
+
             if (!SliceDataManager.Instance.TryGetSliceData(overrideSprite, out var sliceData))
             {
                 base.OnPopulateMesh(vh);
@@ -57,14 +60,11 @@ namespace TwentyFiveSlicer.Runtime
             float[] originalWidths = GetOriginalSizes(xBordersPercent, spriteRect.width);
             float[] originalHeights = GetOriginalSizes(yBordersPercent, spriteRect.height);
 
-            bool[] fixedColumns = { true, false, true, false, true };
-            bool[] fixedRows = { true, false, true, false, true };
+            float[] widths = GetAdjustedSizes(rect.width, originalWidths, _fixedColumns);
+            float[] heights = GetAdjustedSizes(rect.height, originalHeights, _fixedRows);
 
-            float[] widths = GetAdjustedSizes(rect.width, originalWidths, fixedColumns);
-            float[] heights = GetAdjustedSizes(rect.height, originalHeights, fixedRows);
-
-            float[] xPositions = GetPositions(rect.xMin, widths);
-            float[] yPositions = GetPositions(rect.yMin, heights);
+            float[] xPositions = GetPositions(rect.xMin, widths, true);
+            float[] yPositions = GetPositions(rect.yMin, heights, false);
 
             SliceRect[,] slices = GetSlices(xPositions, yPositions, uvXBorders, uvYBorders, widths, heights);
 
@@ -114,28 +114,61 @@ namespace TwentyFiveSlicer.Runtime
         {
             float totalFixedSize = 0f;
             float stretchableSizeRatio = 0f;
+
+            // Calculate total fixed size and stretchable size ratio
             for (int i = 0; i < 5; i++)
             {
-                if (fixedSizes[i]) totalFixedSize += originalSizes[i];
-                else stretchableSizeRatio += originalSizes[i];
+                if (fixedSizes[i])
+                {
+                    totalFixedSize += originalSizes[i];
+                }
+                else
+                {
+                    stretchableSizeRatio += originalSizes[i];
+                }
             }
 
             float totalStretchableSize = Mathf.Max(0, totalSize - totalFixedSize);
             float[] adjustedSizes = new float[5];
-            for (int i = 0; i < 5; i++)
+
+            // If total size is less than total fixed size, scale down the fixed sizes
+            if (totalSize < totalFixedSize)
             {
-                if (fixedSizes[i]) adjustedSizes[i] = originalSizes[i];
-                else adjustedSizes[i] = totalStretchableSize * (originalSizes[i] / stretchableSizeRatio);
+                float scaleRatio = totalSize / totalFixedSize;
+                for (int i = 0; i < 5; i++)
+                {
+                    adjustedSizes[i] = fixedSizes[i] ? originalSizes[i] * scaleRatio : 0;
+                }
+            }
+            // Otherwise, distribute the remaining size proportionally to the stretchable sizes
+            else
+            {
+                for (int i = 0; i < 5; i++)
+                {
+                    adjustedSizes[i] = fixedSizes[i]
+                        ? originalSizes[i]
+                        : totalStretchableSize * (originalSizes[i] / stretchableSizeRatio);
+                }
             }
 
             return adjustedSizes;
         }
 
-        private float[] GetPositions(float start, float[] sizes)
+        private float[] GetPositions(float start, float[] sizes, bool isXPosition)
         {
             float[] positions = new float[6];
             positions[0] = start;
-            for (int i = 1; i <= 5; i++) positions[i] = positions[i - 1] + sizes[i - 1];
+
+            Rect rect = GetPixelAdjustedRect();
+            float maxDelta = isXPosition ? rect.width : rect.height;
+            float totalSize = sizes.Sum();
+            float[] normalizedSizeRatios = sizes.Select(size => size / totalSize).ToArray();
+
+            for (int i = 1; i <= 5; i++)
+            {
+                positions[i] = positions[i - 1] + normalizedSizeRatios[i - 1] * maxDelta;
+            }
+
             return positions;
         }
 
