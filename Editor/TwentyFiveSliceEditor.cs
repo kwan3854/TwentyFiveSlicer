@@ -39,7 +39,7 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
                 LoadBorders();
             }
 
-            _spriteTexture = AssetPreview.GetAssetPreview(_targetSprite);
+            _spriteTexture = _targetSprite.texture;
 
             if (_spriteTexture != null)
             {
@@ -89,13 +89,23 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
 
             for (int i = 0; i < 4; i++)
             {
+                // Vertical borders
                 float x = spriteRect.x + spriteRect.width * _verticalBorders[i] / 100f;
-                Handles.DrawLine(new Vector3(x, spriteRect.y), new Vector3(x, spriteRect.y + spriteRect.height));
-                Handles.Label(new Vector3(x - 10, spriteRect.y - 20), $"V{i + 1}");
+                Vector2 verticalHandlePos = new Vector2(x, spriteRect.y + spriteRect.height / 2);
+                verticalHandlePos = Handles.Slider(verticalHandlePos, Vector2.right);
+                _verticalBorders[i] = (verticalHandlePos.x - spriteRect.x) / spriteRect.width * 100f;
+                Handles.DrawLine(new Vector3(verticalHandlePos.x, spriteRect.y),
+                    new Vector3(verticalHandlePos.x, spriteRect.y + spriteRect.height));
+                Handles.Label(new Vector3(verticalHandlePos.x - 10, spriteRect.y - 20), $"V{i + 1}");
 
+                // Horizontal borders
                 float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
-                Handles.DrawLine(new Vector3(spriteRect.x, y), new Vector3(spriteRect.x + spriteRect.width, y));
-                Handles.Label(new Vector3(spriteRect.x - 30, y - 10), $"H{i + 1}");
+                Vector2 horizontalHandlePos = new Vector2(spriteRect.x + spriteRect.width / 2, y);
+                horizontalHandlePos = Handles.Slider(horizontalHandlePos, Vector2.up);
+                _horizontalBorders[i] = (horizontalHandlePos.y - spriteRect.y) / spriteRect.height * 100f;
+                Handles.DrawLine(new Vector3(spriteRect.x, horizontalHandlePos.y),
+                    new Vector3(spriteRect.x + spriteRect.width, horizontalHandlePos.y));
+                Handles.Label(new Vector3(spriteRect.xMax + 30, horizontalHandlePos.y), $"H{i + 1}");
             }
 
             Handles.EndGUI();
