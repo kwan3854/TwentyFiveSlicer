@@ -86,6 +86,7 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
                 if (Event.current.type == EventType.Repaint)
                 {
                     DrawBorders(_canvasRect);
+                    DrawIntersections(_canvasRect);
                 }
 
                 HandleInput(_canvasRect);
@@ -95,6 +96,27 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
                 // 팝업 창
                 DrawPopupWindow();
             }
+        }
+
+        private void DrawIntersections(Rect canvasRect)
+        {
+            Handles.BeginGUI();
+
+            Rect spriteRect = GetSpriteRect(canvasRect);
+
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    float x = spriteRect.x + spriteRect.width * _verticalBorders[j] / 100f;
+                    float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
+
+                    Handles.color = Color.green;
+                    Handles.DrawSolidRectangleWithOutline(new Rect(x - 2, y - 2, 4, 4), Color.green, Color.black);
+                }
+            }
+
+            Handles.EndGUI();
         }
 
         private void DrawCanvasBackground(Rect rect)
@@ -159,118 +181,134 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
 
             bool cursorSet = false;
 
+            // 교차 영역 우선 처리
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    float x = spriteRect.x + spriteRect.width * _verticalBorders[j] / 100f;
+                    float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
+
+                    float tolerance = 10f;
+                    Rect intersectionHandleRect = new Rect(x - tolerance, y - tolerance, 2 * tolerance, 2 * tolerance);
+
+                    if (intersectionHandleRect.Contains(currentEvent.mousePosition))
+                    {
+                        EditorGUIUtility.AddCursorRect(intersectionHandleRect, MouseCursor.ResizeUpLeft);
+                        cursorSet = true;
+
+                        if (currentEvent.type == EventType.MouseDown)
+                        {
+                            _isDragging = true;
+                            _draggingBorderIndex = i * 10 + j; // 교차 영역 인덱스 설정
+                            _isDraggingVertical = false; // 교차 영역에서 수평/수직 동시
+                            currentEvent.Use();
+                            return;
+                        }
+
+                        if (currentEvent.type == EventType.MouseDrag && _isDragging &&
+                            _draggingBorderIndex == i * 10 + j)
+                        {
+                            Vector2 mousePosition = currentEvent.mousePosition;
+
+                            // 수직 및 수평 경계 동시 조절
+                            float clampedX = Mathf.Clamp(mousePosition.x, spriteRect.x,
+                                spriteRect.x + spriteRect.width);
+                            float clampedY = Mathf.Clamp(mousePosition.y, spriteRect.y,
+                                spriteRect.y + spriteRect.height);
+
+                            _verticalBorders[j] = (clampedX - spriteRect.x) / spriteRect.width * 100f;
+                            _horizontalBorders[i] = (clampedY - spriteRect.y) / spriteRect.height * 100f;
+
+                            currentEvent.Use();
+                            return;
+                        }
+                    }
+                }
+            }
+
+            // 수직/수평 핸들 처리
             for (int i = 0; i < 4; i++)
             {
                 float x = spriteRect.x + spriteRect.width * _verticalBorders[i] / 100f;
                 float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
 
-                Rect verticalHandleRect = new Rect(x - 5, spriteRect.y, 10, spriteRect.height);
-                Rect horizontalHandleRect = new Rect(spriteRect.x, y - 5, spriteRect.width, 10);
+                float tolerance = 10f;
+                Rect verticalHandleRect =
+                    new Rect(x - 5 - tolerance, spriteRect.y, 10 + 2 * tolerance, spriteRect.height);
+                Rect horizontalHandleRect =
+                    new Rect(spriteRect.x, y - 5 - tolerance, spriteRect.width, 10 + 2 * tolerance);
 
-                // 커서 변경을 항상 수행
                 if (verticalHandleRect.Contains(currentEvent.mousePosition) && !cursorSet)
                 {
                     EditorGUIUtility.AddCursorRect(verticalHandleRect, MouseCursor.ResizeHorizontal);
                     cursorSet = true;
+
+                    if (currentEvent.type == EventType.MouseDown)
+                    {
+                        _isDragging = true;
+                        _draggingBorderIndex = i;
+                        _isDraggingVertical = true;
+                        currentEvent.Use();
+                        return;
+                    }
                 }
-                else if (horizontalHandleRect.Contains(currentEvent.mousePosition) && !cursorSet)
+
+                if (horizontalHandleRect.Contains(currentEvent.mousePosition) && !cursorSet)
                 {
                     EditorGUIUtility.AddCursorRect(horizontalHandleRect, MouseCursor.ResizeVertical);
                     cursorSet = true;
+
+                    if (currentEvent.type == EventType.MouseDown)
+                    {
+                        _isDragging = true;
+                        _draggingBorderIndex = i;
+                        _isDraggingVertical = false;
+                        currentEvent.Use();
+                        return;
+                    }
                 }
             }
 
-            // 마우스 입력 처리
-            switch (currentEvent.type)
+            // 드래그 중인지 확인
+            if (currentEvent.type == EventType.MouseDrag && _isDragging)
             {
-                case EventType.MouseDown:
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float x = spriteRect.x + spriteRect.width * _verticalBorders[i] / 100f;
-                        float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
+                Vector2 mousePosition = currentEvent.mousePosition;
 
-                        float tolerance = 10f; // Tolerance value
+                if (_isDraggingVertical)
+                {
+                    float minX = spriteRect.x + (_draggingBorderIndex > 0
+                        ? _verticalBorders[_draggingBorderIndex - 1] / 100f * spriteRect.width
+                        : 0);
+                    float maxX = spriteRect.x + (_draggingBorderIndex < _verticalBorders.Length - 1
+                        ? _verticalBorders[_draggingBorderIndex + 1] / 100f * spriteRect.width
+                        : spriteRect.width);
+                    float clampedX = Mathf.Clamp(mousePosition.x, minX, maxX);
+                    _verticalBorders[_draggingBorderIndex] = (clampedX - spriteRect.x) / spriteRect.width * 100f;
+                }
+                else
+                {
+                    float minY = spriteRect.y + (_draggingBorderIndex > 0
+                        ? _horizontalBorders[_draggingBorderIndex - 1] / 100f * spriteRect.height
+                        : 0);
+                    float maxY = spriteRect.y + (_draggingBorderIndex < _horizontalBorders.Length - 1
+                        ? _horizontalBorders[_draggingBorderIndex + 1] / 100f * spriteRect.height
+                        : spriteRect.height);
+                    float clampedY = Mathf.Clamp(mousePosition.y, minY, maxY);
+                    _horizontalBorders[_draggingBorderIndex] = (clampedY - spriteRect.y) / spriteRect.height * 100f;
+                }
 
-                        Rect verticalHandleRect = new Rect(x - 5 - tolerance, spriteRect.y, 10 + 2 * tolerance, spriteRect.height);
-                        Rect horizontalHandleRect = new Rect(spriteRect.x, y - 5 - tolerance, spriteRect.width, 10 + 2 * tolerance);
+                currentEvent.Use();
+            }
 
-                        if (verticalHandleRect.Contains(currentEvent.mousePosition))
-                        {
-                            _isDragging = true;
-                            _draggingBorderIndex = i;
-                            _isDraggingVertical = true;
-                            currentEvent.Use();
-                            return;
-                        }
-
-                        if (horizontalHandleRect.Contains(currentEvent.mousePosition))
-                        {
-                            _isDragging = true;
-                            _draggingBorderIndex = i;
-                            _isDraggingVertical = false;
-                            currentEvent.Use();
-                            return;
-                        }
-                    }
-
-                    break;
-
-                case EventType.MouseDrag:
-                    if (_isDragging)
-                    {
-                        Vector2 mousePosition = currentEvent.mousePosition;
-
-                        if (_isDraggingVertical)
-                        {
-                            float minX = spriteRect.x + (_draggingBorderIndex > 0 ? _verticalBorders[_draggingBorderIndex - 1] / 100f * spriteRect.width : 0);
-                            float maxX = spriteRect.x + (_draggingBorderIndex < _verticalBorders.Length - 1 ? _verticalBorders[_draggingBorderIndex + 1] / 100f * spriteRect.width : spriteRect.width);
-                            float clampedX = Mathf.Clamp(mousePosition.x, minX, maxX);
-                            _verticalBorders[_draggingBorderIndex] = (clampedX - spriteRect.x) / spriteRect.width * 100f;
-                        }
-                        else
-                        {
-                            float minY = spriteRect.y + (_draggingBorderIndex > 0 ? _horizontalBorders[_draggingBorderIndex - 1] / 100f * spriteRect.height : 0);
-                            float maxY = spriteRect.y + (_draggingBorderIndex < _horizontalBorders.Length - 1 ? _horizontalBorders[_draggingBorderIndex + 1] / 100f * spriteRect.height : spriteRect.height);
-                            float clampedY = Mathf.Clamp(mousePosition.y, minY, maxY);
-                            _horizontalBorders[_draggingBorderIndex] = (clampedY - spriteRect.y) / spriteRect.height * 100f;
-                        }
-
-                        currentEvent.Use();
-                    }
-
-                    break;
-
-                case EventType.MouseUp:
-                    _isDragging = false;
-                    _draggingBorderIndex = -1;
-                    break;
-
-                case EventType.MouseMove:
-                case EventType.Repaint:
-                    // Repaint 및 MouseMove 이벤트에서 커서 모양 갱신
-                    for (int i = 0; i < 4; i++)
-                    {
-                        float x = spriteRect.x + spriteRect.width * _verticalBorders[i] / 100f;
-                        float y = spriteRect.y + spriteRect.height * _horizontalBorders[i] / 100f;
-
-                        float tolerance = 10f; // Tolerance value
-
-                        Rect verticalHandleRect = new Rect(x - 5 - tolerance, spriteRect.y, 10 + 2 * tolerance, spriteRect.height);
-                        Rect horizontalHandleRect = new Rect(spriteRect.x, y - 5 - tolerance, spriteRect.width, 10 + 2 * tolerance);
-
-                        if (verticalHandleRect.Contains(currentEvent.mousePosition))
-                        {
-                            EditorGUIUtility.AddCursorRect(verticalHandleRect, MouseCursor.ResizeHorizontal);
-                        }
-                        else if (horizontalHandleRect.Contains(currentEvent.mousePosition))
-                        {
-                            EditorGUIUtility.AddCursorRect(horizontalHandleRect, MouseCursor.ResizeVertical);
-                        }
-                    }
-
-                    break;
+            // 드래그 해제
+            if (currentEvent.type == EventType.MouseUp)
+            {
+                _isDragging = false;
+                _draggingBorderIndex = -1;
             }
         }
+
 
         private Rect GetSpriteRect(Rect canvasRect)
         {
