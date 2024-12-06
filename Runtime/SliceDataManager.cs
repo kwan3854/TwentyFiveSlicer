@@ -20,6 +20,12 @@ namespace TwentyFiveSlicer.Runtime
                     _instance = new SliceDataManager();
                     _instance.Initialize();
                 }
+                
+                if (_instance._sliceDataMap == null)
+                {
+                    _instance.Initialize();
+                }
+                
                 return _instance;
             }
         }
