@@ -5,16 +5,17 @@
 ## 9-slice vs 25-slice
 
 <p align="center">
-  <img src="Documentation~\Images\9slice_vs_25slice.gif" alt="9-slice vs 25-slice" width="400" />
-  <img src="Documentation~\Images\9slice_vs_25slice_2.gif" alt="9-slice vs 25-slice 2" width="400" />
+  <img src="Documentation~\Images\9slice_vs_25slice.gif" alt="9-slice vs 25-slice" width="350" />
+  <img src="Documentation~\Images\9slice_vs_25slice_2.gif" alt="9-slice vs 25-slice 2" width="350" />
 </p>
 
 
 ## Key Concept
 
 <p align="center">
-  <img src="Documentation~\Images\25slice_debugging_view.gif" alt="25-slice Debugging View" width="400" />
+  <img src="Documentation~\Images\25slice_debugging_view.gif" alt="25-slice Debugging View" width="700" />
 </p>
+
 
 - **9 slices**: Non-stretchable areas.
 - **6 slices**: Stretch horizontally only.
@@ -38,7 +39,7 @@ This allows for far more detailed slicing. Where traditional 9-slice images ofte
 2. Right-click -> **Create -> TwentyFiveSlicer -> SliceDataMap**
 
 <p align="center">
-  <img src="Documentation~\Images\how_to_add_25slice_datamap.png" alt="How to Add 25-slice DataMap" width="800" style="display:inline-block; margin-right:20px;" />
+  <img src="Documentation~\Images\how_to_add_25slice_datamap.png" alt="How to Add 25-slice DataMap" width="550" style="display:inline-block; margin-right:20px;" />
   <img src="Documentation~\Images\sliceDataMap.png" alt="SliceDataMap Example" width="200" style="display:inline-block;" />
 </p>
 
@@ -49,7 +50,7 @@ This allows for far more detailed slicing. Where traditional 9-slice images ofte
 - **Window -> 2D -> 25-Slice Editor**
 
 <p align="center">
-  <img src="Documentation~\Images\how_to_open_editor.png" alt="How to Open 25-Slice Editor" width="900" />
+  <img src="Documentation~\Images\how_to_open_editor.png" alt="How to Open 25-Slice Editor" width="700" />
 </p>
 
 
@@ -61,7 +62,7 @@ This allows for far more detailed slicing. Where traditional 9-slice images ofte
 - Borders are displayed visually for accurate adjustments.
 
 <p align="center">
-  <img src="Documentation~\Images\editor.png" alt="25-Slice Editor" width="900" />
+  <img src="Documentation~\Images\editor.png" alt="25-Slice Editor" width="700" />
 </p>
 
 
@@ -73,7 +74,7 @@ This allows for far more detailed slicing. Where traditional 9-slice images ofte
 1. **Create a TwentyFiveSliceImage GameObject** (or add the component to an existing GameObject):
 
 <p align="center">
-  <img src="Documentation~\Images\how_to_add_25slice_gameobject.png" alt="How to Add 25-Slice GameObject" width="900" />
+  <img src="Documentation~\Images\how_to_add_25slice_gameobject.png" alt="How to Add 25-Slice GameObject" width="700" />
 </p>
 
 
