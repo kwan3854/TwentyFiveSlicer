@@ -1,60 +1,94 @@
 # Twenty Five Slicer
 
-**Twenty Five Slicer** is a Unity package designed for advanced sprite slicing, enabling 25-slice editing. It divides sprites into a 5x5 grid, allowing precise scaling and manipulation while preserving key areas.
+**Twenty Five Slicer** is a Unity package designed for more advanced sprite slicing, enabling a "25-slice" approach. It divides a sprite into a 5x5 grid, allowing precise scaling and manipulation of individual regions while preserving key areas.
 
-## Quick Start: Samples
+## 9-slice vs 25-slice
 
-You can download pre-configured samples directly from the **Samples** tab in the Unity Package Manager. This is the fastest way to get started with the package.
+<p align="center">
+  <img src="Documentation~\Images\9slice_vs_25slice.gif" alt="9-slice vs 25-slice" width="400" />
+  <img src="Documentation~\Images\9slice_vs_25slice_2.gif" alt="9-slice vs 25-slice 2" width="400" />
+</p>
+
+
+## Key Concept
+
+<p align="center">
+  <img src="Documentation~\Images\25slice_debugging_view.gif" alt="25-slice Debugging View" width="400" />
+</p>
+
+- **9 slices**: Non-stretchable areas.
+- **6 slices**: Stretch horizontally only.
+- **6 slices**: Stretch vertically only.
+- **4 slices**: Stretch in both directions.
+
+This allows for far more detailed slicing. Where traditional 9-slice images often require stacking multiple image layers to achieve complex UI shapes (e.g., speech bubbles, boxes with icons or separators at the center), a 25-slice configuration can often handle these scenarios with just a single image.
 
 ## How to Use
 
 ### Installing the Package
 
-1. Open the Unity Package Manager.
+1. Open the Unity **Package Manager**.
 2. Select **Add package from Git URL**.
-3. Enter the following URL:
+3. Enter: `https://github.com/kwan3854/twentyfiveslicer.git` 
+4. To install a specific version, append a version tag: `https://github.com/kwan3854/twentyfiveslicer.git#v1.0.0`
 
-    ```
-    https://github.com/kwan3854/twentyfiveslicer.git
-    ```
+### Create Slice Data Map (First-time Setup)
 
-    > To install a specific version, append the version tag:
-    >
-    > ```
-    > https://github.com/kwan3854/twentyfiveslicer.git#v0.1.0
-    > ```
+1. Navigate to the `Assets/Resources` folder. (Create the folder if it doesn’t exist.)
+2. Right-click -> **Create -> TwentyFiveSlicer -> SliceDataMap**
+
+<p align="center">
+  <img src="Documentation~\Images\how_to_add_25slice_datamap.png" alt="How to Add 25-slice DataMap" width="800" style="display:inline-block; margin-right:20px;" />
+  <img src="Documentation~\Images\sliceDataMap.png" alt="SliceDataMap Example" width="200" style="display:inline-block;" />
+</p>
+
 
 ### Editing a Sprite
 
 1. **Open the 25-Slice Editor**:
-    - In the Unity menu, navigate to **Window -> 2D -> 25-Slice Editor**.
+- **Window -> 2D -> 25-Slice Editor**
+
+<p align="center">
+  <img src="Documentation~\Images\how_to_open_editor.png" alt="How to Open 25-Slice Editor" width="900" />
+</p>
+
+
 2. **Load Your Sprite**:
-    - Drag and drop your sprite into the editor or select it using the provided field.
+- Drag and drop your sprite into the editor or select it via the provided field.
+
 3. **Adjust the Slices**:
-    - Use the sliders to set the horizontal and vertical borders, dividing the sprite into 25 sections.
-    - Borders are displayed visually in the editor for precise adjustment.
+- Use the sliders to define the horizontal and vertical cut lines, dividing the sprite into 25 sections.
+- Borders are displayed visually for accurate adjustments.
+
+<p align="center">
+  <img src="Documentation~\Images\editor.png" alt="25-Slice Editor" width="900" />
+</p>
+
+
 4. **Save the Configuration**:
-    - Click the **Save Borders** button to store the 25-slice settings.
+- Click **Save Borders** to store the 25-slice settings.
 
 ### Using the 25-Sliced Sprite
 
-1. **Add the TwentyFiveSliceImage Component**:
-    - Attach the `TwentyFiveSliceImage` component to your GameObject.
-    - Replace the standard `Image` component with the `TwentyFiveSliceImage` component.
+1. **Create a TwentyFiveSliceImage GameObject** (or add the component to an existing GameObject):
+
+<p align="center">
+  <img src="Documentation~\Images\how_to_add_25slice_gameobject.png" alt="How to Add 25-Slice GameObject" width="900" />
+</p>
+
+
 2. **Assign the Sliced Sprite**:
-    - Set the sliced sprite in the `TwentyFiveSliceImage` component, just like a regular Image.
-3. **Customize as Needed**:
-    - The sprite will scale dynamically while respecting the 25-slice configuration, preserving key areas.
+- In the `TwentyFiveSliceImage` component, assign the sprite as you would with a standard UI Image.
 
 ## Key Features
 
-- Divide sprites into a 5x5 grid for fine-grained control.
-- Seamlessly scale and stretch specific regions of a sprite.
-- Compatible with Unity's UI system for dynamic layouts.
-- Easy-to-use editor with visual feedback for precise slicing.
+- Divide sprites into a 5x5 grid for highly detailed control.
+- Seamlessly scale and stretch specific sprite regions.
+- Fully compatible with Unity’s UI system for dynamic layouts.
+- Intuitive editor with clear visual guidance for precise adjustments.
 
 For more information or contributions, visit the [repository](https://github.com/kwan3854/TwentyFiveSlicer).
 
-## Delete unused data
+## Delete Unused Data
 
 **Tools -> Twenty Five Slicer Tools -> Slice Data Cleaner**
