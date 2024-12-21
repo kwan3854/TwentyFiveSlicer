@@ -1,5 +1,7 @@
 # Twenty Five Slicer
 
+[![openupm](https://img.shields.io/npm/v/com.kwanjoong.twentyfiveslicer?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.kwanjoong.twentyfiveslicer/)
+
 **Twenty Five Slicer** is a Unity package designed for more advanced sprite slicing, enabling a "25-slice" approach. It divides a sprite into a 5x5 grid, allowing precise scaling and manipulation of individual regions while preserving key areas.
 
 ## 9-slice vs 25-slice
