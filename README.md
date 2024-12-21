@@ -26,14 +26,52 @@
 
 This allows for far more detailed slicing. Where traditional 9-slice images often require stacking multiple image layers to achieve complex UI shapes (e.g., speech bubbles, boxes with icons or separators at the center), a 25-slice configuration can often handle these scenarios with just a single image.
 
-## How to Use
+## Installing the Package
 
-### Installing the Package
+### 1. Install via OpenUPM
+
+#### 1.1. Install via Package Manager
+Please follow the instrustions:
+- open Edit/Project Settings/Package Manager 
+- add a new Scoped Registry (or edit the existing OpenUPM entry)
+  - Name: `package.openupm.com`
+  - URL: `https://package.openupm.com`
+- click `Save` or `Apply`
+- open Window/Package Manager 
+- click `+`
+- select `Add package by name...` or `Add package from git URL...`
+- paste `com.kwanjoong.twentyfiveslicer` into name 
+- paste version (e.g.`1.0.0`) into version 
+- click `Add`
+---
+#### 1.2. Alternatively, merge the snippet to Packages/manifest.json
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": []
+    }
+  ],
+  "dependencies": {
+    "com.kwanjoong.twentyfiveslicer": "1.0.0"
+  }
+}
+```
+#### 1.3. Install via command-line interface
+```sh
+openupm add com.kwanjoong.twentyfiveslicer
+```
+
+### 2. Install via Git URL
 
 1. Open the Unity **Package Manager**.
 2. Select **Add package from Git URL**.
 3. Enter: `https://github.com/kwan3854/twentyfiveslicer.git` 
 4. To install a specific version, append a version tag: `https://github.com/kwan3854/twentyfiveslicer.git#v1.0.0`
+
+## How to Use
 
 ### Create Slice Data Map (First-time Setup)
 
