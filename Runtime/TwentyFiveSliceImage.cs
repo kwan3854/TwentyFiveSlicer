@@ -35,21 +35,21 @@ namespace TwentyFiveSlicer.Runtime
         protected override void OnPopulateMesh(VertexHelper vh)
         {
             vh.Clear();
-            if (overrideSprite == null)
+            if (sprite == null)
             {
                 base.OnPopulateMesh(vh);
                 return;
             }
 
-            if (!SliceDataManager.Instance.TryGetSliceData(overrideSprite, out var sliceData))
+            if (!SliceDataManager.Instance.TryGetSliceData(sprite, out var sliceData))
             {
                 base.OnPopulateMesh(vh);
                 return;
             }
 
             Rect rect = GetPixelAdjustedRect();
-            Vector4 outer = UnityEngine.Sprites.DataUtility.GetOuterUV(overrideSprite);
-            Rect spriteRect = overrideSprite.rect;
+            Vector4 outer = UnityEngine.Sprites.DataUtility.GetOuterUV(sprite);
+            Rect spriteRect = sprite.rect;
 
             float[] xBordersPercent = GetXBordersPercent(sliceData);
             float[] yBordersPercent = GetYBordersPercent(sliceData);

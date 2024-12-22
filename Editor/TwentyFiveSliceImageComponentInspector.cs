@@ -55,7 +55,7 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
                 EditorGUI.indentLevel--;
             }
 
-            if (myScript.overrideSprite != null && !SliceDataManager.Instance.TryGetSliceData(myScript.overrideSprite, out _))
+            if (myScript.sprite != null && !SliceDataManager.Instance.TryGetSliceData(myScript.sprite, out _))
             {
                 EditorGUILayout.HelpBox(NoSliceDataWarning, MessageType.Warning);
             }
