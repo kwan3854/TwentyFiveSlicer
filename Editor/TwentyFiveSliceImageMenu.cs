@@ -11,7 +11,7 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
         public static void CreateTwentyFiveSliceImage()
         {
             // Find or create a Canvas
-            Canvas canvas = Object.FindObjectOfType<Canvas>();
+            Canvas canvas = Object.FindFirstObjectByType<Canvas>();
             if (canvas == null)
             {
                 var canvasGo = new GameObject("Canvas");
