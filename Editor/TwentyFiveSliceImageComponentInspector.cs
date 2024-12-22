@@ -12,21 +12,34 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
         private bool _showRaycastPadding = false;
         private bool _showDebuggingMenus = false;
         
+        // Labels
+        private const string SourceImageLabel = "Source Image";
+        private const string ColorLabel = "Color";
+        private const string MaterialLabel = "Material";
+        private const string RaycastTargetLabel = "Raycast Target";
+        private const string RaycastPaddingLabel = "Raycast Padding";
+        private const string PaddingLabel = "Padding";
+        private const string DebuggingLabel = "Debugging";
+        private const string DebuggingColoredViewLabel = "Debugging Colored View";
+        
+        // Help box messages
+        private const string NoSliceDataWarning = "The selected sprite does not have 25-slice data. Please slice the sprite in Window -> 2D -> 25-Slice Editor.";
+        
         public override void OnInspectorGUI()
         {
             var myScript = (TwentyFiveSliceImage)target;
             
-            myScript.overrideSprite = (Sprite)EditorGUILayout.ObjectField("Source Image", myScript.overrideSprite, typeof(Sprite),
+            myScript.sprite = (Sprite)EditorGUILayout.ObjectField(SourceImageLabel, myScript.sprite, typeof(Sprite),
                         false, GUILayout.Height(EditorGUIUtility.singleLineHeight));
-            myScript.color = EditorGUILayout.ColorField("Color", myScript.color);
-            myScript.material = (Material)EditorGUILayout.ObjectField("Material", myScript.material, typeof(Material), false);
-            myScript.raycastTarget = EditorGUILayout.Toggle("Raycast Target", myScript.raycastTarget);
+            myScript.color = EditorGUILayout.ColorField(ColorLabel, myScript.color);
+            myScript.material = (Material)EditorGUILayout.ObjectField(MaterialLabel, myScript.material, typeof(Material), false);
+            myScript.raycastTarget = EditorGUILayout.Toggle(RaycastTargetLabel, myScript.raycastTarget);
             
-            _showRaycastPadding = EditorGUILayout.Foldout(_showRaycastPadding, "Raycast Padding");
+            _showRaycastPadding = EditorGUILayout.Foldout(_showRaycastPadding, RaycastPaddingLabel);
             if (_showRaycastPadding)
             {
                 EditorGUI.indentLevel++;
-                myScript.raycastPadding = EditorGUILayout.Vector4Field("Padding", myScript.raycastPadding);
+                myScript.raycastPadding = EditorGUILayout.Vector4Field(PaddingLabel, myScript.raycastPadding);
                 EditorGUI.indentLevel--;
             }
 
@@ -34,17 +47,17 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
             EditorGUILayout.Space();
             EditorGUILayout.Separator();
             
-            _showDebuggingMenus = EditorGUILayout.Foldout(_showDebuggingMenus, "Debugging");
+            _showDebuggingMenus = EditorGUILayout.Foldout(_showDebuggingMenus, DebuggingLabel);
             if (_showDebuggingMenus)
             {
                 EditorGUI.indentLevel++;
-                myScript.DebuggingView = EditorGUILayout.Toggle("Debugging Colored View", myScript.DebuggingView);
+                myScript.DebuggingView = EditorGUILayout.Toggle(DebuggingColoredViewLabel, myScript.DebuggingView);
                 EditorGUI.indentLevel--;
             }
 
             if (myScript.overrideSprite != null && !SliceDataManager.Instance.TryGetSliceData(myScript.overrideSprite, out _))
             {
-                EditorGUILayout.HelpBox("The selected sprite does not have 25-slice data. Please slice the sprite in Window -> 2D -> 25-Slice Editor.", MessageType.Warning);
+                EditorGUILayout.HelpBox(NoSliceDataWarning, MessageType.Warning);
             }
 
             if (GUI.changed)
