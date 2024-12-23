@@ -1,15 +1,17 @@
-namespace TwentyFiveSlicer.Runtime
+using UnityEngine.Serialization;
+
+namespace Twentyfiveslicer.Runtime.SerializedDictionary
 {
     [System.Serializable]
     public class SerializableKeyValuePair<TKey, TValue>
     {
-        public TKey Key;
-        public TValue Value;
+        [FormerlySerializedAs("Key")] public TKey key;
+        [FormerlySerializedAs("Value")] public TValue value;
 
         public SerializableKeyValuePair(TKey key, TValue value)
         {
-            Key = key;
-            Value = value;
+            this.key = key;
+            this.value = value;
         }
     }
 }
