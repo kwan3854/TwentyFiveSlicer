@@ -104,11 +104,7 @@ namespace TwentyFiveSlicer.Runtime
 
         private void Update()
         {
-            // In Edit Mode, rebuild if needed
-            if (!Application.isPlaying)
-            {
-                RebuildMeshIfNeeded();
-            }
+            RebuildMeshIfNeeded();
         }
 
         //========================================================
@@ -236,6 +232,8 @@ namespace TwentyFiveSlicer.Runtime
                 if (size == value) return;
                 size = value;
                 _needMeshUpdate = true;
+                
+                RebuildMeshIfNeeded();
             }
         }
 
