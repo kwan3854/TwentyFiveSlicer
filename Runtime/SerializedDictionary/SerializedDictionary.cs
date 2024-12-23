@@ -24,7 +24,7 @@ namespace Twentyfiveslicer.Runtime.SerializedDictionary
             _dictionary.Clear();
             foreach (var item in items)
             {
-                _dictionary[item.Key] = item.Value;
+                _dictionary[item.key] = item.value;
             }
         }
 
