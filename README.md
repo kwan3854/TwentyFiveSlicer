@@ -46,7 +46,7 @@ Please follow the instructions:
 5. Click the `+` button
 6. Select **Add package by name...** (or **Add package from git URL...**)
 7. Paste `com.kwanjoong.twentyfiveslicer` into **Name**
-8. Paste a version (e.g., `1.1.0`) into **Version**
+8. Paste a version (e.g., `1.1.2`) into **Version**
 9. Click **Add**
 
 ---
@@ -62,7 +62,7 @@ Please follow the instructions:
     }
   ],
   "dependencies": {
-    "com.kwanjoong.twentyfiveslicer": "1.1.0"
+    "com.kwanjoong.twentyfiveslicer": "1.1.2"
   }
 }
 ```
