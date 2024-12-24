@@ -1,68 +1,103 @@
-using System.Reflection;
-using TwentyFiveSlicer.Runtime;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEditor;
+using TwentyFiveSlicer.Runtime;
 
 namespace TwentyFiveSlicer.TFSEditor.Editor
 {
-    [CustomEditor(typeof(Runtime.TwentyFiveSliceImage))]
+    [CustomEditor(typeof(TwentyFiveSliceImage))]
+    [CanEditMultipleObjects]
     public class TwentyFiveSliceImageComponentInspector : UnityEditor.Editor
     {
-        private bool _showRaycastPadding = false;
-        private bool _showDebuggingMenus = false;
-        
-        // Labels
-        private const string SourceImageLabel = "Source Image";
-        private const string ColorLabel = "Color";
-        private const string MaterialLabel = "Material";
-        private const string RaycastTargetLabel = "Raycast Target";
-        private const string RaycastPaddingLabel = "Raycast Padding";
-        private const string PaddingLabel = "Padding";
-        private const string DebuggingLabel = "Debugging";
-        private const string DebuggingColoredViewLabel = "Debugging Colored View";
-        
+        // From UnityEngine.UI.Image
+        private SerializedProperty _spSprite;
+        private SerializedProperty _spColor;
+        private SerializedProperty _spMaterial;
+        private SerializedProperty _spRaycastTarget;
+        private SerializedProperty _spRaycastPadding;
+
+        // From TwentyFiveSliceImage
+        private SerializedProperty _spDebuggingView;
+
+        // For foldouts
+        private bool _shouldShowRaycastPadding = false;
+        private bool _shouldShowDebuggingMenus = false;
+
         // Help box messages
-        private const string NoSliceDataWarning = "The selected sprite does not have 25-slice data. Please slice the sprite in Window -> 2D -> 25-Slice Editor.";
-        
+        private const string NoSliceDataWarning = 
+            "The selected sprite does not have 25-slice data. Please slice the sprite in Window -> 2D -> 25-Slice Editor.";
+
+        private void OnEnable()
+        {
+            // Find the serialized fields in the base Image class
+            _spSprite         = serializedObject.FindProperty("m_Sprite");
+            _spColor          = serializedObject.FindProperty("m_Color");
+            _spMaterial       = serializedObject.FindProperty("m_Material");
+            _spRaycastTarget  = serializedObject.FindProperty("m_RaycastTarget");
+            _spRaycastPadding = serializedObject.FindProperty("m_RaycastPadding");
+
+            // For the TwentyFiveSliceImage fields
+            _spDebuggingView  = serializedObject.FindProperty("debuggingView"); 
+        }
+
         public override void OnInspectorGUI()
         {
-            var myScript = (TwentyFiveSliceImage)target;
-            
-            myScript.sprite = (Sprite)EditorGUILayout.ObjectField(SourceImageLabel, myScript.sprite, typeof(Sprite),
-                        false, GUILayout.Height(EditorGUIUtility.singleLineHeight));
-            myScript.color = EditorGUILayout.ColorField(ColorLabel, myScript.color);
-            myScript.material = (Material)EditorGUILayout.ObjectField(MaterialLabel, myScript.material, typeof(Material), false);
-            myScript.raycastTarget = EditorGUILayout.Toggle(RaycastTargetLabel, myScript.raycastTarget);
-            
-            _showRaycastPadding = EditorGUILayout.Foldout(_showRaycastPadding, RaycastPaddingLabel);
-            if (_showRaycastPadding)
+            // 1) Update the serialized object so we have the latest data
+            serializedObject.Update();
+
+            // 2) Draw the fields we want from the base Image
+            EditorGUILayout.PropertyField(_spSprite,     new GUIContent("Source Image"));
+            EditorGUILayout.PropertyField(_spColor,      new GUIContent("Color"));
+            EditorGUILayout.PropertyField(_spMaterial,   new GUIContent("Material"));
+            EditorGUILayout.PropertyField(_spRaycastTarget, new GUIContent("Raycast Target"));
+
+            // 3) Raycast Padding foldout
+            _shouldShowRaycastPadding = EditorGUILayout.Foldout(_shouldShowRaycastPadding, "Raycast Padding");
+            if (_shouldShowRaycastPadding)
             {
                 EditorGUI.indentLevel++;
-                myScript.raycastPadding = EditorGUILayout.Vector4Field(PaddingLabel, myScript.raycastPadding);
+                
+                // Show Left, Bottom, Right, Top for a Vector4.
+                Vector4 padding = _spRaycastPadding.vector4Value;
+                padding.x = EditorGUILayout.FloatField("Left",   padding.x);
+                padding.y = EditorGUILayout.FloatField("Bottom", padding.y);
+                padding.z = EditorGUILayout.FloatField("Right",  padding.z);
+                padding.w = EditorGUILayout.FloatField("Top",    padding.w);
+                
+                // Write back to the property
+                _spRaycastPadding.vector4Value = padding;
+
                 EditorGUI.indentLevel--;
             }
 
-            EditorGUILayout.Space();
             EditorGUILayout.Space();
             EditorGUILayout.Separator();
-            
-            _showDebuggingMenus = EditorGUILayout.Foldout(_showDebuggingMenus, DebuggingLabel);
-            if (_showDebuggingMenus)
+
+            // 4) TwentyFiveSliceImage-specific fields
+            _shouldShowDebuggingMenus = EditorGUILayout.Foldout(_shouldShowDebuggingMenus, "Debugging");
+            if (_shouldShowDebuggingMenus)
             {
                 EditorGUI.indentLevel++;
-                myScript.DebuggingView = EditorGUILayout.Toggle(DebuggingColoredViewLabel, myScript.DebuggingView);
+                EditorGUILayout.PropertyField(_spDebuggingView, new GUIContent("Debugging View"));
                 EditorGUI.indentLevel--;
             }
 
-            if (myScript.sprite != null && !SliceDataManager.Instance.TryGetSliceData(myScript.sprite, out _))
-            {
-                EditorGUILayout.HelpBox(NoSliceDataWarning, MessageType.Warning);
-            }
+            // 5) Show the 25-slice data warning if needed
+            ShowSliceDataWarning();
 
-            if (GUI.changed)
+            // 6) Apply changes
+            serializedObject.ApplyModifiedProperties();
+        }
+
+        private void ShowSliceDataWarning()
+        {
+            // If there's a sprite but no 25-slice data, show the warning
+            Sprite spriteObj = _spSprite.objectReferenceValue as Sprite;
+            if (spriteObj != null)
             {
-                EditorUtility.SetDirty(target);
+                if (!SliceDataManager.Instance.TryGetSliceData(spriteObj, out _))
+                {
+                    EditorGUILayout.HelpBox(NoSliceDataWarning, MessageType.Warning);
+                }
             }
         }
     }

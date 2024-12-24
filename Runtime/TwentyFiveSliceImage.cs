@@ -17,18 +17,19 @@ namespace TwentyFiveSlicer.Runtime
 
         public bool DebuggingView
         {
-            get => _debuggingView;
+            get => debuggingView;
             set
             {
-                if (_debuggingView != value)
+                if (debuggingView != value)
                 {
-                    _debuggingView = value;
+                    debuggingView = value;
                     SetVerticesDirty();
                 }
             }
         }
 
-        private bool _debuggingView = false;
+        [SerializeField] private bool debuggingView = false;
+        
         private readonly bool[] _fixedColumns = { true, false, true, false, true };
         private readonly bool[] _fixedRows = { true, false, true, false, true };
 
