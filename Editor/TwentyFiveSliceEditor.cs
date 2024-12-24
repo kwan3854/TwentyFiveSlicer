@@ -183,7 +183,18 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
             Rect spriteRect = CalculateSpriteRect(bigCanvasRect, spriteWidth, spriteHeight);
 
             DrawGridBackground(spriteRect);
-            GUI.DrawTexture(spriteRect, _spriteTexture, ScaleMode.StretchToFill, true);
+            
+            var outerUV = UnityEngine.Sprites.DataUtility.GetOuterUV(CurrentSprite);
+            Rect uvRect = new Rect(
+                outerUV.x,
+                outerUV.y,
+                outerUV.z - outerUV.x, // width in UV space
+                outerUV.w - outerUV.y  // height in UV space
+            );
+
+            // Draw only the sprite portion of the atlas
+            GUI.DrawTextureWithTexCoords(spriteRect, _spriteTexture, uvRect, true);
+            
             DrawSpriteBoundary(spriteRect);
             DrawBorders(spriteRect);
             DrawIntersections(spriteRect);
