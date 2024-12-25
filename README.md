@@ -10,8 +10,7 @@
 ## 9-slice vs 25-slice
 
 <p align="center">
-  <img src="Documentation~/Images/9slice_vs_25slice.gif" alt="9-slice vs 25-slice" width="350" />
-  <img src="Documentation~/Images/9slice_vs_25slice_2.gif" alt="9-slice vs 25-slice 2" width="350" />
+  <img src="Documentation~/Images/9slice_VS_25slice_3.gif" alt="9-slice vs 25-slice" width="700" />
 </p>
 
 ---
