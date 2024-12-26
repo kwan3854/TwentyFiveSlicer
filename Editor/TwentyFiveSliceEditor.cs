@@ -579,7 +579,7 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
         private void DrawPopupWindow()
         {
             float popupWidth = 300;
-            float popupHeight = 180;
+            float popupHeight = 200;
             Rect popupRect = new Rect(position.width - popupWidth - 20, position.height - popupHeight - 20, popupWidth,
                 popupHeight);
 
@@ -614,18 +614,60 @@ namespace TwentyFiveSlicer.TFSEditor.Editor
             GUILayout.Space(10);
 
             GUILayout.BeginHorizontal();
+
+            // ========== Vertical Borders ==========
             GUILayout.BeginVertical();
             GUILayout.Label("Vertical Borders", boldCenterLabel);
+
+            float labelWidth = 30f;
+            float fieldWidth = 80f;
+
             for (int i = 0; i < 4; i++)
-                GUILayout.Label($"V{i + 1}: {_verticalBorders[i]:F1}%", centerLabel);
+            {
+                GUILayout.BeginHorizontal();
+
+                GUILayout.Label($"V{i + 1}", GUILayout.Width(labelWidth));
+
+                float newValue = EditorGUILayout.FloatField(
+                    _verticalBorders[i],
+                    GUILayout.Width(fieldWidth)
+                );
+
+                // Clamp
+                float min = (i > 0) ? _verticalBorders[i - 1] : 0f;
+                float max = (i < 3) ? _verticalBorders[i + 1] : 100f;
+                newValue = Mathf.Clamp(newValue, min, max);
+
+                _verticalBorders[i] = newValue;
+                GUILayout.EndHorizontal();
+            }
+
             GUILayout.EndVertical();
 
             GUILayout.Space(20);
 
+            // ========== Horizontal Borders ==========
             GUILayout.BeginVertical();
             GUILayout.Label("Horizontal Borders", boldCenterLabel);
+
             for (int i = 0; i < 4; i++)
-                GUILayout.Label($"H{i + 1}: {_horizontalBorders[i]:F1}%", centerLabel);
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"H{i + 1}", GUILayout.Width(labelWidth));
+
+                float newValue = EditorGUILayout.FloatField(
+                    _horizontalBorders[i],
+                    GUILayout.Width(fieldWidth)
+                );
+
+                float min = (i > 0) ? _horizontalBorders[i - 1] : 0f;
+                float max = (i < 3) ? _horizontalBorders[i + 1] : 100f;
+                newValue = Mathf.Clamp(newValue, min, max);
+
+                _horizontalBorders[i] = newValue;
+                GUILayout.EndHorizontal();
+            }
+
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
