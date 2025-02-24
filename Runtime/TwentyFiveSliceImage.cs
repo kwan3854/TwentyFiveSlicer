@@ -162,8 +162,18 @@ namespace TwentyFiveSlicer.Runtime
 
             Rect rect = GetPixelAdjustedRect();
             float maxDelta = isXPosition ? rect.width : rect.height;
-            float totalSize = sizes.Sum();
-            float[] normalizedSizeRatios = sizes.Select(size => size / totalSize).ToArray();
+
+            float totalSize = 0;
+            for (int i = 0; i < 5; i++)
+            {
+                totalSize += sizes[i];
+            }
+            
+            float[] normalizedSizeRatios = new float[sizes.Length];
+            for (int i = 0; i < 5; i++)
+            {
+                normalizedSizeRatios[i] = sizes[i] / totalSize;
+            }
 
             for (int i = 1; i <= 5; i++)
             {
