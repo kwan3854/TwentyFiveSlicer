@@ -64,8 +64,8 @@ namespace TwentyFiveSlicer.Runtime
             float[] widths = GetAdjustedSizes(rect.width, originalWidths, _fixedColumns);
             float[] heights = GetAdjustedSizes(rect.height, originalHeights, _fixedRows);
 
-            float[] xPositions = GetPositions(rect.xMin, widths, true);
-            float[] yPositions = GetPositions(rect.yMin, heights, false);
+            float[] xPositions = GetPositions(rect.xMin, widths);
+            float[] yPositions = GetPositions(rect.yMin, heights);
 
             SliceRect[,] slices = GetSlices(xPositions, yPositions, uvXBorders, uvYBorders, widths, heights);
 
@@ -155,21 +155,15 @@ namespace TwentyFiveSlicer.Runtime
             return adjustedSizes;
         }
 
-        private float[] GetPositions(float start, float[] sizes, bool isXPosition)
+        private float[] GetPositions(float start, float[] sizes)
         {
             float[] positions = new float[6];
             positions[0] = start;
-
-            Rect rect = GetPixelAdjustedRect();
-            float maxDelta = isXPosition ? rect.width : rect.height;
-            float totalSize = sizes.Sum();
-            float[] normalizedSizeRatios = sizes.Select(size => size / totalSize).ToArray();
-
-            for (int i = 1; i <= 5; i++)
+            for (int i = 1; i < 6; i++)
             {
-                positions[i] = positions[i - 1] + normalizedSizeRatios[i - 1] * maxDelta;
+                positions[i] = positions[i - 1] + sizes[i - 1];
             }
-
+            
             return positions;
         }
 
