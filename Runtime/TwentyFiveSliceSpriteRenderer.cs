@@ -646,7 +646,14 @@ namespace TwentyFiveSlicer.Runtime
 
         private void OnDestroy()
         {
-            Destroy(_generatedMesh);
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                DestroyImmediate(_generatedMesh);
+            }
+            else
+#endif
+                Destroy(_generatedMesh);
         }
     }
 }
