@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -641,6 +642,11 @@ namespace TwentyFiveSlicer.Runtime
             }
 
             return positions;
+        }
+
+        private void OnDestroy()
+        {
+            Destroy(_generatedMesh);
         }
     }
 }
