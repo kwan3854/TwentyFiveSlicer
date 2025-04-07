@@ -1,0 +1,104 @@
+name: Publish
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "upm-build"
+  upm-test:
+    # The type of runner that the job will run on
+    name: Unity upm build for ${{ matrix.targetPlatform }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        unityVersion:
+          - 2020.3.8f1
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checkout (without LFS)
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Git LFS
+      - name: Create LFS file list
+        run: git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
+
+      - name: Restore LFS cache
+        uses: actions/cache@v3
+        id: lfs-cache
+        with:
+          path: .git/lfs
+          key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}
+
+      - name: Git LFS Pull
+        run: |
+          git lfs pull
+          git add .
+          git reset --hard
+          
+      # Cache
+      - name: Cache Unity Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-
+      
+      # Move files         
+      - name: rename samples directory
+        run: 'mkdir -p Packages/com.kwanjoong.twentyfiveslicer &&
+              mv Editor Packages/com.kwanjoong.twentyfiveslicer/Editor && 
+              mv Editor.meta Packages/com.kwanjoong.twentyfiveslicer/Editor.meta &&
+              mv Runtime Packages/com.kwanjoong.twentyfiveslicer/Runtime &&
+              mv Runtime.meta Packages/com.kwanjoong.twentyfiveslicer/Runtime.meta &&
+              mv LICENSE Packages/com.kwanjoong.twentyfiveslicer/LICENSE && 
+              mv LICENSE.meta Packages/com.kwanjoong.twentyfiveslicer/LICENSE.meta &&
+              mv README.md Packages/com.kwanjoong.twentyfiveslicer/README.md &&
+              mv README.md.meta Packages/com.kwanjoong.twentyfiveslicer/README.md.meta &&
+              mv package.json Packages/com.kwanjoong.twentyfiveslicer/package.json &&
+              mv package.json.meta Packages/com.kwanjoong.twentyfiveslicer/package.json.meta'
+      
+        # Tag
+      - name: Create Tag from package.json
+        id: autotagger
+        uses: Klemensas/action-autotag@stable
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          package_root: "Packages/com.kwanjoong.twentyfiveslicer"
+
+      # Publish
+      - name: Publish repository release
+        id: create_release
+        if: steps.autotagger.outputs.tagname != ''
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.autotagger.outputs.tagname }}
+          release_name: ${{ steps.autotagger.outputs.tagname }}
+          body: ${{ steps.autotagger.outputs.tagmessage }}
+          draft: false
+          prerelease: false
+
+      - name: Configure npm
+        uses: actions/setup-node@v2
+        if: steps.autotagger.outputs.tagname != ''
+        with:
+          registry-url: 'https://npm.pkg.github.com/'
+          scope: '@Korion-Interactive'
+
+      - name: Publish package release
+        if: steps.autotagger.outputs.tagname != ''
+        run: cd Packages/com.kwanjoong.twentyfiveslicer && npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
