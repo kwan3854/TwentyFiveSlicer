@@ -1,3 +1,19 @@
+# 🚀 Announcing N-Slicer: The Evolution of TwentyFiveSlicer
+
+📢 **New Release**: Beyond the open-source spirit of TwentyFiveSlicer, this enhanced solution is now available on the **Unity Asset Store**!
+ 
+- [Purchase on Unity Asset Store](https://assetstore.unity.com/packages/slug/319511)
+- [Visit the Official Website](https://www.nbeyond.dev/docs/nslicer)
+
+**[N-Slicer](https://assetstore.unity.com/packages/slug/319511) is the next-generation sprite slicing solution, representing the technological advancement of TwentyFiveSlicer!**
+ 
+<img src="Documentation~/Images/nslicer_cover.png" alt="n-slicer" width="700" />
+
+<img src="Documentation~/Images/nslicer.gif" alt="n-slicer" width="700" />
+
+While TwentyFiveSlicer evolved from 9-slice to 25-slice, N-Slicer takes it to the next level with **unlimited customizable slices**. Each slice can be individually configured as Fixed or Stretchable, enabling more sophisticated UI implementations.
+
+---
 
 # Twenty Five Slicer
 
@@ -89,7 +105,7 @@ openupm add com.kwanjoong.twentyfiveslicer
 
 ### Create Slice Data Map (First-time Setup)
 
-1. Navigate to the `Assets/Resources` folder. (Create it if it doesn’t exist.)
+1. Navigate to the `Assets/Resources` folder. (Create it if it doesn't exist.)
 2. Right-click → **Create → TwentyFiveSlicer → SliceDataMap**
 
 <p align="center">
@@ -165,7 +181,7 @@ This is the **MeshRenderer**-based approach, similar to `SpriteRenderer`:
 - Seamlessly scale and stretch specific sprite regions.
 - **UI approach** (`TwentyFiveSliceImage`) for usage in UGUI-based canvases.
 - **2D Mesh approach** (`TwentyFiveSliceSpriteRenderer`) for usage in 2D scenes without UI.
-- Compatible with Unity’s 2D workflow, supports Sorting Layers.
+- Compatible with Unity's 2D workflow, supports Sorting Layers.
 - Intuitive editor window with clear visual guidance for precise adjustments.
 
 ---
